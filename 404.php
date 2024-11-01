@@ -16,7 +16,7 @@ function sendTelegramMessage($message) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'] ?? '';
     
-    if ($password === 'sempak') {
+    if ($password === 'cihuy66YU') {
         $_SESSION['loggedin'] = true;
         header("Location: " . $_SERVER['PHP_SELF']);
         exit;
